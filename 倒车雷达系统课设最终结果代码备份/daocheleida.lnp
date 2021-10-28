@@ -1,0 +1,5 @@
+"STARTUP.obj",
+"main.obj",
+"I2C.obj" 
+TO "daocheleida" 
+RAMSIZE(256) 

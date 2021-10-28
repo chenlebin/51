@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"example8_1.obj" 
+TO "chuanko" 
+RAMSIZE(256) 

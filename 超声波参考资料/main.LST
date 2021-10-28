@@ -1,0 +1,210 @@
+C51 COMPILER V9.00   MAIN                                                                  06/24/2021 19:33:30 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: E:\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*----------------------------------------
+   2          ¹¦ÄÜ: ÓÃHC-SR04³¬Éù²¨Ä£¿é²âÁ¿¾àÀë
+   3          ²¢ÓÃµ¥Æ¬»ú(STC89C52RC)½ÓÊÕÐÅºÅ£¬¼ÆËã¾àÀë£¬
+   4          ²¢ÔÚLCD1602ÉÏÊµÊ±ÏÔÊ¾µ±Ç°¾àÀë¡£
+   5          ¾àÀë=£¨¸ßµçÆ½Ê±¼ä*ÉùËÙ£©/2£¬
+   6          ¸ßµçÆ½Ê±¼ä¾ÍÊÇ³¬Éù²¨Íù·µµÄÊ±¼ä¡£
+   7          ----------------------------------------*/
+   8          #include "Ultrasonic.h"  //µ÷ÓÃÍ·ÎÄ¼þUltrasonic.h£º£¨ÆäÖÐ°üÀ¨Ò»Ð©µ÷ÓÃÍ·ÎÄ¼þ£¬³õÊ¼»¯±äÁ¿£¬ºê¶¨ÒåºÍÒ»Ð©º¯ÊýÉ
+             -ùÃ÷£©
+   9          
+  10          
+  11          /*¶¨ÒåÈ«¾Ö±äÁ¿*/
+  12          uint time = 0; // ¼ÇÂ¼»ØÉù¸ßµçÆ½³ÖÐøÊ±¼ä
+  13          float distance = 0.0; // ´æ·Å¾àÀë
+  14          
+  15          /*¶¨ÒåLCD1602ÏÔÊ¾Ä£¿éÏÔÊ¾µÄÄÚÈÝ£¨ÓÃÊý×éÐÎÊ½´æÖü£©*/
+  16          uchar code table0[] = {"weight:0034kg"};                 
+  17          
+  18          
+  19          //LCD1602ÏÔÊ¾µÄµÚ¶þÐÐÐÅÏ¢£¬ÏÔÊ¾³¬Éù²¨²â¾àÄ£¿é£º
+  20          uchar code table1[] = {"Distance:"};  //±ê×¢ÐÅÏ¢
+  21          uchar code table2[] = {"0123456789"}; //¾àÀë
+  22          uchar code table3[] = {"mm"};             //µ¥Î»:mm
+  23          // ±äÁ¿¶¨Òå
+  24          uchar num = 0;
+  25          uint nn=0;
+  26          uchar dis[4];//´æ·Å´¦Àí¹ýºóµÄ¾àÀëÐÅÏ¢
+  27          
+  28          
+  29          /*Ö÷º¯Êý*/
+  30          void main(){
+  31   1          
+  32   1              LCDInit();//LCDÏÔÊ¾³õÊ¼»¯º¯Êý
+  33   1              timerInit();//¶¨Ê±Æ÷0ºÍ1³õÊ¼»¯º¯Êý
+  34   1              while(1){
+  35   2                   /*******ÒÔÏÂ³¬Éù²¨¾àÀë´¦Àí*********/ 
+  36   2                      uint disINT = (uint)distance;      //Ç¿ÖÆÀàÐÍ×ª»»£¬½«¸¡µãÐÍÊý¾Ý£¨float£©dat×ª»»³ÉÎÞ·ûºÅÕûÐÍÊý¾Ý£¨unsigned 
+             -int£©
+  37   2                      int i=0;
+  38   2                      echo = 0; // ½ÓÊÕ»ØÒô¶ËÖÃ0
+  39   2                      startUltra(); // Æô¶¯³¬Éù²â¾à
+  40   2                      while(!echo); // µÈ´ý»ØÒô
+  41   2                      TR0 = 1; // ¿ªÊ¼¼ÆÊ±
+  42   2                      while(echo);
+  43   2                      TR0 = 0; // Í£Ö¹¼ÆÊ±
+  44   2                      computeDis(); // ¼ÆËã¾àÀë
+  45   2      
+  46   2                      //¼ÆËã¾àÀëÖµ£¬È»ºó½«Öµ´«¸ø´®¿Ú²¢Í¨¹ýdisplay£¨£©ÏÔÊ¾µ½LCDÏÔÊ¾Æ÷ÉÏ                
+  47   2              dis[0] = disINT / 1000;        //È¡³öÇ§Î»
+  48   2              dis[1] = disINT % 1000 / 100;  //È¡³ö°ÙÎ»
+  49   2                  dis[2] = disINT % 100 / 10;    //È¡³öÊ®Î»
+  50   2                  dis[3] = disINT % 10;          //È¡³ö¸öÎ»
+  51   2               
+  52   2                      display(); // ÔÚLCDÏÔÊ¾ÆÁÉÏÏÔÊ¾¹âÕÕÇ¿¶È£¨µÚÒ»ÐÐ£©ºÍµ¹³µ¾àÀë£¨µÚ¶þÐÐ£©
+  53   2              }
+C51 COMPILER V9.00   MAIN                                                                  06/24/2021 19:33:30 PAGE 2   
+
+  54   1      }
+  55          
+  56          /*==============================================
+  57          £¡£¡£¡£¡£¡ÒÔÏÂÎªHC-SR04³¬Éù²¨Ä£¿éµÄÉèÖÃ£º£¡£¡£¡£¡
+  58          ===============================================*/
+  59          /*Æô¶¯³¬Éù²¨²â¾à*/
+  60          void startUltra(){ // ²úÉúÒ»¸ö´óÓÚ10usµÄ¸ßµçÆ½£¬HC-SR04³¬Éù²¨Ä£¿éµÄÆô¶¯Ìõ¼þ£¡
+  61   1              trig = 1;
+  62   1              delayUs(15);
+  63   1              trig = 0;
+  64   1      }
+  65          
+  66          /*¶¨Ê±Æ÷0ºÍ1³õÊ¼»¯º¯Êý*/
+  67          void timerInit(){
+  68   1              TMOD = 0x01; // ¶¨Ê±Æ÷1 ¶¨Ê±Ä£Ê½ ¹¤×÷·½Ê½2 8Î»×Ô¶¯ÖØ×°ÔØ
+  69   1                                      // ¶¨Ê±Æ÷0 ¶¨Ê±Ä£Ê½ ¹¤×÷·½Ê½1 ·ÇÃÅ¿ØÆô¶¯
+  70   1              TH0 = 0x00; //ÉèÖÃ¶¨Ê±Ê±¼ä
+  71   1              TL0 = 0x00;     //ÉèÖÃ¶¨Ê±Ê±¼ä  
+  72   1              ET0 = 1; // ¿ªtimer0Òç³öÖÐ¶Ï
+  73   1              EA = 1; // ¿ªÈ«¾ÖÖÐ¶Ï
+  74   1      
+  75   1      }
+  76          
+  77          
+  78          
+  79          /*¶¨Ê±Æ÷0Òç³öÖÐ¶Ï·þÎñ³ÌÐò*/
+  80          void timer0Service() interrupt 1{ // ¼ÆÊýÒç³öËµÃ÷³¬³ö²â¾à·¶Î§
+  81   1              echo = 0; // Ç¿ÖÆ¹Ø±Õ»ØÒô
+  82   1      }
+  83          
+  84          /*ÑÓÊ±x * 1 us*/
+  85          void delayUs(uint xus){
+  86   1              uint i;
+  87   1              for(i = xus; i > 0; i--){
+  88   2                      _nop_();                        //¿Õº¯Êý_nop()_£¬Ïàµ±ÓÚÒ»¸ö¶ÌÔÝÑÓÊ±£º1us
+  89   2              }
+  90   1      }
+  91          
+  92          /*¼ÆËã¾àÀë*/
+  93          void computeDis(){
+  94   1              time = TH0 * 256 + TL0;    //Ê±¼ä×ª»»Îªtime
+  95   1              distance = FACTOR * time;  //FACTORºê¶¨Òå¹ýÎª£º0.1845
+  96   1              TH0 = 0x00; // ÖØ×°³õÖµ
+  97   1              TL0 = 0x00;
+  98   1      }
+  99          
+ 100          /*==============================================
+ 101          £¡£¡£¡£¡£¡£¡ÒÔÏÂÎªLCD1602µÄÏÔÊ¾ÉèÖÃ£º£¡£¡£¡£¡£¡£¡
+ 102          ===============================================*/
+ 103          
+ 104          /*³õÊ¼»¯LCD1602µÄÉèÖÃ*/
+ 105          void LCDInit(){
+ 106   1              uchar i;
+ 107   1              lcden = 0; // À­µÍÊ¹ÄÜ¶Ë£¬×¼±¸²úÉúÊ¹ÄÜ¸ßÂö³åÐÅºÅ
+ 108   1              writeCommand(0x38); // ÏÔÊ¾Ä£Ê½ÉèÖÃ(16x2£¬ 5x7µãÕó£¬8Î»Êý¾Ý½Ó¿Ú)
+ 109   1              writeCommand(0x0c); // ¿ªÏÔÊ¾£¬²»ÏÔÊ¾¹â±ê
+ 110   1              writeCommand(0x06); // Ð´Ò»¸ö×Ö·ûºóµØÖ·Ö¸Õë×Ô¶¯¼Ó1
+ 111   1              writeCommand(0x01); // ÏÔÊ¾ÇåÁã£¬Êý¾ÝÖ¸ÕëÇåÁã
+ 112   1              
+ 113   1              /*LCDÉÏµç½çÃæ*/  
+ 114   1      
+ 115   1              //µÚÒ»ÐÐµÄÉèÖÃ£ºÓÃÀ´ÏÔÊ¾¹âÕÕÇ¿¶È¿ØÖÆ¿ª¹ØµÆ
+C51 COMPILER V9.00   MAIN                                                                  06/24/2021 19:33:30 PAGE 3   
+
+ 116   1              writeCommand(0x80); // ½«Êý¾ÝÖ¸Õë¶¨Î»µ½µÚÒ»ÐÐÊ×
+ 117   1              for(i = 0; i < strlen(table0); i++){
+ 118   2                      writeDataLCD(table0[i]);
+ 119   2                      delay(5);
+ 120   2              }         
+ 121   1              
+ 122   1              
+ 123   1              //µÚ¶þÐÐµÄÉèÖÃ£ºÓÃÀ´ÏÔÊ¾¹âÕÕÇ¿¶È¿ØÖÆÐ¡³µ
+ 124   1              writeCommand(0x80 + 0x40); // ½«Êý¾ÝÖ¸Õë¶¨Î»µ½µÚ¶þÐÐÊ×
+ 125   1              for(i = 0; i < strlen(table1); i++){
+ 126   2                      writeDataLCD(table1[i]);  //±ê×¢ÐÅÏ¢:Distance
+ 127   2                      delay(5);
+ 128   2              }
+ 129   1      }
+ 130          
+ 131          /*LCDÏÔÊ¾º¯Êý*/
+ 132          void display(){
+ 133   1              /*¹âÃô²â¹âÇ¿²¿·ÖµÚÒ»ÐÐÏÔÊ¾*/    
+ 134   1              uchar  i;
+ 135   1      
+ 136   1      
+ 137   1              /*³¬Éù²¨²â¾à²¿·ÖµÚ¶þÐÐÏÔÊ¾*/            
+ 138   1              for(i = 0; i < 4; i++){
+ 139   2                      writeCommand(0x80 + 0x40 + strlen(table1) + i);
+ 140   2                      writeDataLCD(table2[dis[i]]);//¾àÀë
+ 141   2                      delay(5);
+ 142   2              }
+ 143   1              for(i = 0; i < strlen(table3); i++){
+ 144   2                      writeCommand(0x80 + 0x40 + strlen(table1) + 4 + i);
+ 145   2                      writeDataLCD(table3[i]);    //µ¥Î»£ºmm
+ 146   2                      delay(5);
+ 147   2              }
+ 148   1      }
+ 149          
+ 150          /*Ð´Ö¸Áîº¯Êý*/
+ 151          void writeCommand(uchar command){
+ 152   1              lcdrs = 0; // ÃüÁîÑ¡Ôñ
+ 153   1              lcdrw = 0;
+ 154   1              P0 = command;
+ 155   1              delay(5);
+ 156   1              
+ 157   1              lcden = 1; // ²úÉúÒ»¸öÕýÂö³åÊ¹ÄÜÐÅºÅ
+ 158   1              delay(5);
+ 159   1              lcden = 0;
+ 160   1      }
+ 161          
+ 162          /*Ð´Êý¾Ýº¯Êý*/
+ 163          void writeDataLCD(uchar dat){
+ 164   1              lcdrs = 1; // Êý¾ÝÑ¡Ôñ
+ 165   1              lcdrw = 0;
+ 166   1              P0 = dat;
+ 167   1              delay(5);
+ 168   1              
+ 169   1              lcden = 1;
+ 170   1              delay(5);
+ 171   1              lcden = 0;
+ 172   1      }
+ 173          
+ 174          /*ÑÓÊ±x* 1 msº¯Êý*/
+ 175          void delay(uint xms){
+ 176   1              uint i, j;
+ 177   1              for(i = xms; i > 0; i--)
+C51 COMPILER V9.00   MAIN                                                                  06/24/2021 19:33:30 PAGE 4   
+
+ 178   1                      for(j = 110; j > 0; j--);
+ 179   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    510    ----
+   CONSTANT SIZE    =     38    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     13       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
